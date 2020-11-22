@@ -1,5 +1,6 @@
 # cmd_Go
 with this program you can play Go in a command line  
+Just for a reminder 'Go' doesn't mean the programming language but a board game. (https://en.wikipedia.org/wiki/Go_(game))  
 
 ## how to use  
 well, just click it  (OF COURSE you need a python interpreter, if you have more than one, just go on)
@@ -7,6 +8,8 @@ well, just click it  (OF COURSE you need a python interpreter, if you have more 
 ## command list:  
 #### (black|white) [A-S] [1-19]  
 this is the main command to play the game, put a black/white chess at column A-S and row 1-19  
+#### remove [A-S] [1-19]  
+remove one chess  
 #### clear  
 remove the whole game  
 #### file  
