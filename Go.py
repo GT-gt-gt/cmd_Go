@@ -64,6 +64,13 @@ while True:
         elif command[0] == "white":
             place(command, 2, 1)
         
+        elif command[0] == "remove":
+            if len(command) == 3 and command[1] in char_reference and int(command[2])<=19 and int(command[2])>=1: 
+                grid[char_reference.index(command[1])+(int(command[2])-1)*19] = 0
+            else: 
+                input("Parameter Error: format should be {black [A-S] [1-19]}...")
+                continue
+        
         elif command[0] == "clear":
             if input("Are you sure to clear the whole game? (type Yes to confirm): ") == "Yes": grid = [0]*441
         
