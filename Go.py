@@ -3,58 +3,76 @@ grid = [0]*361
 reference = ["╋ ", "○", "●"]
 char_reference = [chr(x) for x in range(65, 84)]
 command = [""]
+history = []
 
 def show(grid):
     global reference
     print("    A B C D E F G H I J K L M N O P Q R S")
     for y in range(19):
         print(y+1, end=" ")
-        if (y+1) // 10 < 1:
-            print(end=" ")
-        for x in range(19):
+        if (y+1) // 10 < 1: print(end=" ")
+        for x in range(19): 
             print(reference[grid[y*19+x]], end="")
         print("")
 
 def place(command, x, y):
+    global grid
+
     if len(command) == 3 and command[1] in char_reference and int(command[2])<=19 and int(command[2])>=1: 
         corr = char_reference.index(command[1])+(int(command[2])-1)*19
     else: 
-        input("Parameter Error: format should be {black [A-S] [1-19]}...")
+        input("Parameter Error: format should be {[black/white] [A-S] [1-19]}...")
         return
+    
     if grid[corr] == 0:
+        histroy_branch = [y, corr]
         grid[corr] = x
-        if corr-19 >= 0: surround(corr-19, x)
-        if corr+19 <= 360: surround(corr+19, x)
-        if corr%19 != 0: surround(corr-1, x)
-        if corr%19 != 18: surround(corr+1, x)
+        if corr-19 >= 0 and grid[corr-19] != x: 
+            if surround(corr-19, x): histroy_branch.append(-19)
+        if corr+19 <= 360 and grid[corr+19] != x: 
+            if surround(corr+19, x): histroy_branch.append(19)
+        if corr%19 != 0 and grid[corr-1] != x:
+            if surround(corr-1, x): histroy_branch.append(-1)
+        if corr%19 != 18 and grid[corr+1] != x: 
+            if surround(corr+1, x): histroy_branch.append(1)
+
         if surround(corr, y): input("Invalid location...")
+        else: history.append(histroy_branch)
+
     else: input("This point has been taken up...")
 
-def surround(index, who):
+def surround(index, s):
     visited = []
     def check(index):
-        global grid
+        global grid, char_reference
         if grid[index] == 0: return False
-        elif grid[index] == who: return True
+        elif grid[index] == s: return True
         visited.append(index)
-        if index-19 >= 0 and index-19 not in visited: up = check(index-19)
-        else: up = True
-        if index+19 <= 360 and index+19 not in visited: down = check(index+19)
-        else: down = True
-        if index % 19 != 0 and index-1 not in visited: left = check(index-1)
-        else: left = True
-        if index % 19 != 18 and index+1 not in visited: right = check(index+1)
-        else: right = True
-        return up and down and left and right
+        direction = [True, True, True, True]
+        if index-19 >= 0 and index-19 not in visited: direction[0] = check(index-19)
+        if index+19 <= 360 and index+19 not in visited: direction[1] = check(index+19)
+        if index % 19 != 0 and index-1 not in visited: direction[2] = check(index-1)
+        if index % 19 != 18 and index+1 not in visited: direction[3] = check(index+1)
+        return False not in direction
     if check(index):
         for corr in visited:
             grid[corr] = 0
         return True
     return False
 
+def spread(index, i):
+    global grid
+    grid[index] = i
+    if index-19 >= 0 and grid[index-19] == 0: spread(index-19, i)
+    if index+19 <= 360 and grid[index+19] == 0: spread(index+19, i)
+    if index % 19 != 0 and grid[index-1] == 0: spread(index-19, i)
+    if index % 19 != 18 and grid[index+1] == 0: spread(index+1, i)
+
 while True:
 
     try:
+        print(history)
+
         show(grid)
         command = input(">> ").split(" ")
         
@@ -63,7 +81,7 @@ while True:
         
         elif command[0] == "white":
             place(command, 2, 1)
-        
+
         elif command[0] == "remove":
             if len(command) == 3 and command[1] in char_reference and int(command[2])<=19 and int(command[2])>=1: 
                 grid[char_reference.index(command[1])+(int(command[2])-1)*19] = 0
@@ -71,8 +89,20 @@ while True:
                 input("Parameter Error: format should be {black [A-S] [1-19]}...")
                 continue
         
+        elif command[0] == "withdraw":
+            action = history[-1]
+            print(action)
+            del history[-1]
+
+            if len(action) >= 3:
+                for restore in action[2:]:
+                    print(restore)
+                    spread(action[1]+restore, action[0])
+            
+            grid[action[1]] = 0
+
         elif command[0] == "clear":
-            if input("Are you sure to clear the whole game? (type Yes to confirm): ") == "Yes": grid = [0]*441
+            if input("Are you sure to clear the sle game? (type Yes to confirm): ") == "Yes": grid = [0]*441
         
         elif command[0] == "file":
 
